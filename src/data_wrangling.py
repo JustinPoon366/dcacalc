@@ -1,5 +1,11 @@
+import pandas as pd
 from multiprocessing import Value
 from fetch_data import *
+
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+
 
 def purchased_crypto(df, apr, rewards_freq, investment=0, investment_period=""):
     """Function that takes investment amount, investment period, APR and frequency of rewards distribution"""
@@ -35,6 +41,10 @@ def purchased_crypto(df, apr, rewards_freq, investment=0, investment_period=""):
         df[["Fiat Increment", "Index"]] = df[["Fiat Increment", "Index"]].loc[df['Index'] % 30 == 0]
         df["Fiat Increment"] = df["Fiat Increment"].fillna(0)
         df = df.drop(columns="Index")
+    #Lump Sum
+    if investment_period == "Lump Sum":
+        df["Fiat Increment"] = 0
+        df.loc[df.index[0], "Fiat Increment"] = investment
 
     #Work out the amount of crypto you would recieve each date (does not consider fees yet) by dividing the open price by the fiat increment
     df["Token Recieved"] = df["Fiat Increment"] / df["Open"]
@@ -89,15 +99,17 @@ def main():
     #Input the pairing
     crypto, fiat = "ETH", "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
-    investment, investment_period = 10000, "Monthly"
+    investment, investment_period = 10000, "Lump Sum"
 
     #Input the staking returns (%), rewards frequency (Monthly)
     apr, rewards_freq = 5, "Monthly"
     
     prices = get_crypto_price(crypto, fiat, start, end)
     df = purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
-    
+
+    print(df)
     fv, final_date, min_pl, min_date, max_pl, max_date = final_stats(df)
+
 
     print(fv, final_date, min_pl, min_date, max_pl, max_date)
 if __name__== "__main__":

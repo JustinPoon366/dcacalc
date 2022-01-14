@@ -20,7 +20,8 @@ server = app.server
 TIME_PERIOD = [
     "Daily",
     "Weekly",
-    "Monthly"
+    "Monthly", 
+    "Lump Sum"
 ]
 
 colors = {
