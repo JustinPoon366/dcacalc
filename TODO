@@ -1,0 +1,5 @@
+Disclaimer for financial advice
+
+Optional:
+1. Scrape CMC data (longer history) into CSV and read into dataframe
+2. Create API for historical data
