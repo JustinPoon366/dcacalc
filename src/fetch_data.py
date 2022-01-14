@@ -11,7 +11,10 @@ CRYPTO_LIST = [
     "BTC",
     "ETH",
     "ADA", 
-    "LRC",
+    "SOL",
+    "AVAX",
+    "LINK",
+    "LRC"
 ]
 
 STOCK_LIST = [
