@@ -15,6 +15,7 @@ from fetch_data import STOCK_LIST, CRYPTO_LIST
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
+app.title = 'Crypto Dollar Cost Calculator'
 server = app.server
 
 TIME_PERIOD = [
