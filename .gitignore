@@ -131,3 +131,6 @@ dmypy.json
 #Recomended for deployment
 *.pyc
 .DS_Store
+
+#Personal Files
+TODO.txt
