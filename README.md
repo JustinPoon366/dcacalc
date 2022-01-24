@@ -2,6 +2,10 @@
 
 Makes your life easier by calculating ROI when dollar cost averaging into a top 10 crypto.
 
+## Website
+
+The website is live at: <https://dcacalc.herokuapp.com/>
+
 ## About Me
 
 My name is Justin, and i'm on a quest to educate the public on the potential rewards (and risks) of investing in crypto currencies.
