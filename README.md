@@ -2,13 +2,17 @@
 
 Makes your life easier by calculating ROI when dollar cost averaging into a top 10 crypto.
 
-# About Me
+## About Me
 
 My name is Justin, and i'm on a quest to educate the public on the potential rewards (and risks) of investing in crypto currencies.
 
 If you found my website useful, please share it!
 
-If you would like me to make a custom dashboard, please reach out to me at: <junstag366@gmail.com>
+If you would like me to make a custom dashboard for you, please reach out to me at: <junstag366@gmail.com>
+
+## About The Calc
+
+Data is pulled from the yfinance library, processed using python, visualised using plotly dash and hosted using heroku.
 
 <table border=1 cellpadding=10><tr><td>
 
