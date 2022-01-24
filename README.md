@@ -8,7 +8,7 @@ My name is Justin, and i'm on a quest to educate the public on the potential rew
 
 If you found my website useful, please share it!
 
-If you would like me to make a custom dashboard, please reach out to me at: [Justin Poon](mailto:junstag366@gmail.com)
+If you would like me to make a custom dashboard, please reach out to me at: <junstag366@gmail.com>
 
 <table border=1 cellpadding=10><tr><td>
 
