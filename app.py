@@ -190,7 +190,7 @@ graph_card = dbc.Card([
 ])
 
 
-def stat_card(id_value, description, image, id_date=""):
+def stat_card(id_value, description, image, id_date="", id_freq=""):
     stat_cards= dbc.Card([
         dbc.CardBody([
             dbc.Row([
@@ -202,7 +202,8 @@ def stat_card(id_value, description, image, id_date=""):
                 dbc.Col([
                     dbc.Label(description, style={"font-size":"18px"}),
                     html.Div(id=id_value),
-                    html.Div(id=id_date, style={"font-size": "12px", "color":"grey"})
+                    html.Div(id=id_date, style={"font-size": "12px", "color":"grey"}),
+                    html.Div(id=id_freq, style={"font-size": "12px", "color":"grey"})
                 ], width={"size": 9})
             ], style={"height":"100%"})    
         ],style={"height": "100px", "padding": "1rem 2rem"})
@@ -235,9 +236,15 @@ app.layout = html.Div(id="output-clientside", children=[
             dbc.Row(header),
             dbc.Row([
                 dbc.Col(stat_card("final-return-value", "Total Portfolio Value", "/assets/images/bill.png"), width={"size": 3}),
-                dbc.Col(stat_card('min-return-value', "Maximum Loss", "/assets/images/loss.png", "min-return-date"), width={"size": 3}),
-                dbc.Col(stat_card('max-return-value', "Maximum Gain", "/assets/images/money.png", "max-return-date"), width={"size": 3}),
+                dbc.Col(stat_card('min-return-percentage', "Maximum Loss (%)", "/assets/images/loss.png", "min-return-date"), width={"size": 3}),
+                dbc.Col(stat_card('max-return-percentage', "Maximum Gain (%)", "/assets/images/money.png", "max-return-date"), width={"size": 3}),
                 dbc.Col(coffee_card, width={"size": 3})
+            ]),
+            html.Br(),
+            dbc.Row([
+                dbc.Col(stat_card("increment", "Investment Increment", "/assets/images/bill.png", id_freq="investment-period"), width={"size": 3}),
+                dbc.Col(stat_card('min-return-absolute', "Maximum Loss ($)", "/assets/images/euro-down.png"), width={"size": 3}),
+                dbc.Col(stat_card('max-return-absolute', "Maximum Gain ($)", "/assets/images/pound-up.png"), width={"size": 3}),
             ]),
             html.Br(),
             dbc.Row(children=[
@@ -254,10 +261,14 @@ app.layout = html.Div(id="output-clientside", children=[
 @app.callback(
     dash.dependencies.Output('display-selected-values', 'figure'),
     dash.dependencies.Output('final-return-value', 'children'),
-    dash.dependencies.Output('min-return-value', 'children'),
+    dash.dependencies.Output('min-return-percentage', 'children'),
     dash.dependencies.Output('min-return-date', 'children'),
-    dash.dependencies.Output('max-return-value', 'children'),
+    dash.dependencies.Output('max-return-percentage', 'children'),
     dash.dependencies.Output('max-return-date', 'children'),
+    dash.dependencies.Output('investment-period', 'children'),
+    dash.dependencies.Output('increment', 'children'),
+    dash.dependencies.Output('min-return-absolute', 'children'),
+    dash.dependencies.Output('max-return-absolute', 'children'),
     [dash.dependencies.Input('crypto-dropdown', 'value'),
     dash.dependencies.Input('time-period-dropdown', 'value'),
     dash.dependencies.Input('investment-amount', 'value'),
@@ -272,9 +283,9 @@ def update_line_graph(crypto, investment_period, investment, start_date, end_dat
     FIAT = "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
     prices = fd.get_crypto_price(crypto, FIAT, start_date, end_date)
-    df = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
-    fv, final_date, min_pl, min_date, max_pl, max_date = dw.final_stats(df)
-    return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date
+    df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
+    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs = dw.final_stats(df)
+    return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date, investment_period, increment, min_pl_abs, max_pl_abs
 
 
 if __name__ == '__main__':

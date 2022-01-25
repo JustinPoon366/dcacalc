@@ -6,6 +6,10 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
+# Assets citation
+# https://www.flaticon.com/packs/trading-8?word=trading
+# https://www.flaticon.com/packs/business-12?word=trading
+
 
 def purchased_crypto(df, apr, rewards_freq, investment=0, investment_period=""):
     """Function that takes investment amount, investment period, APR and frequency of rewards distribution"""
@@ -44,6 +48,7 @@ def purchased_crypto(df, apr, rewards_freq, investment=0, investment_period=""):
     #Lump Sum
     if investment_period == "Lump Sum":
         df["Fiat Increment"] = 0
+        increment = investment
         df.loc[df.index[0], "Fiat Increment"] = investment
 
     #Work out the amount of crypto you would recieve each date (does not consider fees yet) by dividing the open price by the fiat increment
@@ -78,20 +83,34 @@ def purchased_crypto(df, apr, rewards_freq, investment=0, investment_period=""):
     df["Date"] = df.index
     #Create a column for the net loss/gain (%)
     df["PL"] = (df["Cumulative Fiat Value (Staked)"] - df["Cumulative Fiat Invested"]) / df["Cumulative Fiat Invested"] * 100
-    return df
+
+    #Format Increment for the card
+    increment = f"${increment:,.2f}"
+
+    return df, increment
 
 def final_stats(df):
     final_date = df.index[-1]
     fv = df["Cumulative Fiat Value (Staked)"][final_date] #final portfolio value (staked)
     fv = f"${fv:,.2f}"
     final_date = final_date.strftime('%d-%m-%Y')
+
     min_pl = df.PL.min()
     min_pl = f"{min_pl:,.2f}%"
+
+    df_profit_loss_absolute = df["Cumulative Fiat Value (Staked)"] - df["Cumulative Fiat Invested"]
+    min_pl_abs = df_profit_loss_absolute.min()
+    min_pl_abs = f"${min_pl_abs:,.2f}"
+
+    max_pl_abs = df_profit_loss_absolute.max()
+    max_pl_abs = f"${max_pl_abs:,.2f}"
+
     min_date = "(" + df["PL"].idxmin().strftime('%d %b %Y') + ")"
     max_pl = df.PL.max()
     max_pl = f"{max_pl:,.2f}%"
     max_date = "(" + df["PL"].idxmax().strftime('%d %b %Y') + ")"
-    return fv, final_date, min_pl, min_date, max_pl, max_date
+    
+    return fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs
 
 def main():
     #Input the start and end date in the YYYY-MM-DD format
@@ -99,18 +118,20 @@ def main():
     #Input the pairing
     crypto, fiat = "ETH", "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
-    investment, investment_period = 10000, "Lump Sum"
+    investment, investment_period = 10000, "Monthly"
 
     #Input the staking returns (%), rewards frequency (Monthly)
     apr, rewards_freq = 5, "Monthly"
     
     prices = get_crypto_price(crypto, fiat, start, end)
-    df = purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
+    df, increment = purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
 
     print(df)
-    fv, final_date, min_pl, min_date, max_pl, max_date = final_stats(df)
+    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs = final_stats(df)
 
 
-    print(fv, final_date, min_pl, min_date, max_pl, max_date)
+    print(fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs)
+
+    
 if __name__== "__main__":
     main()
