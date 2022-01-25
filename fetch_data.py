@@ -10,9 +10,16 @@ import inspect
 CRYPTO_LIST = [
     "BTC",
     "ETH",
+    "BNB",
     "ADA", 
     "SOL",
+    "TERRA",
+    "DOGE",
+    "DOT",
     "AVAX",
+    "MATIC",
+    "ATOM",
+    "CRO",
     "LINK",
     "LRC"
 ]
