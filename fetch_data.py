@@ -13,7 +13,6 @@ CRYPTO_LIST = [
     "BNB",
     "ADA", 
     "SOL",
-    "LUNA",
     "DOGE",
     "DOT",
     "AVAX",
