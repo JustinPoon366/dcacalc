@@ -280,7 +280,7 @@ app.layout = html.Div(id="output-clientside", children=[
     ])
 
 def update_line_graph(crypto, investment_period, investment, start_date, end_date, apr, rewards_freq):
-    #USD pairing as this has the most data
+    #USD pairing as this has the most data.
     FIAT = "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
     prices = fd.get_crypto_price(crypto, FIAT, start_date, end_date)
