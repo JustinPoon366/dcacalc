@@ -1,6 +1,6 @@
 import pandas as pd
 from multiprocessing import Value
-from fetch_data import *
+from apps import fetch_data as fd
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -43,7 +43,7 @@ def purchased_crypto(df, apr, rewards_freq, investment, investment_period, dca_s
     #Monthly
     if investment_period == "Monthly":
         if dca_strategy == "Lump_Sum":
-            num_months = round(len(df)/30)
+            num_months = (df.last_valid_index().year - df.first_valid_index().year) * 12 + (df.last_valid_index().month - df.first_valid_index().month)
             increment = investment/num_months
         elif dca_strategy == "Increment":
             increment = investment
@@ -52,7 +52,7 @@ def purchased_crypto(df, apr, rewards_freq, investment, investment_period, dca_s
         #Create an index temporarily
         df.insert(0, 'Index', range(0,len(df)))
         #Slice it for the thirtieth row
-        df[["Fiat Increment", "Index"]] = df[["Fiat Increment", "Index"]].loc[df['Index'] % 30 == 0]
+        df[["Fiat Increment", "Index"]] = df[["Fiat Increment", "Index"]].loc[df.index.day == 1]
         df["Fiat Increment"] = df["Fiat Increment"].fillna(0)
         df = df.drop(columns="Index")
     #Lump Sum
@@ -151,7 +151,7 @@ def main():
     #Input the staking returns (%), rewards frequency (Monthly)
     apr, rewards_freq = 5, "Monthly"
     
-    prices = get_crypto_price(crypto, fiat, start, end)
+    prices = fd.get_crypto_price(crypto, fiat, start, end)
     df, increment = purchased_crypto(prices, apr, rewards_freq, investment, investment_period, dca_strategy)
 
     print(df)
