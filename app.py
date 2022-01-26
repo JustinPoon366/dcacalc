@@ -118,21 +118,31 @@ control_card = dbc.Card(children=
                 value='BTC', 
                 persistence_type="session"
                 ),
+                dbc.Label("DCA Strategy"),
+                dbc.RadioItems(
+                    options=[
+                        {"label": "Investment Increment Known", "value": "Increment"},
+                        {"label": "Total Amount to Invest Known", "value": "Lump_Sum"},
+                    ],
+                    value="Increment",
+                    id="dca-strategy-radio-items",
+                    inline=True,
+                ),
                 dbc.Label("Enter Investment Frequency"),
                 dcc.Dropdown(
                     id='time-period-dropdown',
                     options= [{'label': k, 'value': k} for k in TIME_PERIOD],
-                    value='Monthly', 
+                    value='Weekly', 
                     persistence_type="session"
                 ),
-                dbc.Label("Enter Lump Sum"),
+                dbc.Label("Enter Amount"),
                 dbc.InputGroup(
                     [
                         dbc.InputGroupText("$", style={"background-color":"#b58900", "color":"#fff"}),
                         dbc.Input(
                             id = 'investment-amount',  
                             type="number",
-                            value=10000,
+                            value=100,
                             min=0,
                             debounce=True,
                             required=True,
@@ -185,7 +195,7 @@ graph_card = dbc.Card([
                 
             ),
     ],
-    style={"height": "445px"}
+    style={"height": "450px"}
     )
 ])
 
@@ -237,14 +247,15 @@ app.layout = html.Div(id="output-clientside", children=[
             dbc.Row([
                 dbc.Col(stat_card("final-return-value", "Total Portfolio Value", "/assets/images/bill.png"), width={"size": 3}),
                 dbc.Col(stat_card('min-return-percentage', "Maximum Loss (%)", "/assets/images/loss.png", "min-return-date"), width={"size": 3}),
-                dbc.Col(stat_card('max-return-percentage', "Maximum Gain (%)", "/assets/images/money.png", "max-return-date"), width={"size": 3}),
+                dbc.Col(stat_card('max-return-percentage', "Maximum Gain (%)", "/assets/images/rocket.png", "max-return-date"), width={"size": 3}),
                 dbc.Col(coffee_card, width={"size": 3})
             ]),
             html.Br(),
             dbc.Row([
-                dbc.Col(stat_card("increment", "Investment Increment", "/assets/images/bill.png", id_freq="investment-period"), width={"size": 3}),
+                dbc.Col(stat_card("increment", "Investment Increment", "/assets/images/deposit.png", id_freq="investment-period"), width={"size": 3}),
                 dbc.Col(stat_card('min-return-absolute', "Maximum Loss ($)", "/assets/images/euro-down.png"), width={"size": 3}),
                 dbc.Col(stat_card('max-return-absolute', "Maximum Gain ($)", "/assets/images/pound-up.png"), width={"size": 3}),
+                dbc.Col(stat_card('amount_invested', "Total Fiat Invested ($)", "/assets/images/money-bag.png"), width={"size": 3}),
             ]),
             html.Br(),
             dbc.Row(children=[
@@ -269,23 +280,25 @@ app.layout = html.Div(id="output-clientside", children=[
     dash.dependencies.Output('increment', 'children'),
     dash.dependencies.Output('min-return-absolute', 'children'),
     dash.dependencies.Output('max-return-absolute', 'children'),
+    dash.dependencies.Output('amount_invested', 'children'),
     [dash.dependencies.Input('crypto-dropdown', 'value'),
     dash.dependencies.Input('time-period-dropdown', 'value'),
     dash.dependencies.Input('investment-amount', 'value'),
     dash.dependencies.Input('my-date-picker-range', 'start_date'), 
     dash.dependencies.Input('my-date-picker-range', 'end_date'),
     dash.dependencies.Input('staking-returns', 'value'),
-    dash.dependencies.Input('staking-time-period-dropdown', 'value')
+    dash.dependencies.Input('staking-time-period-dropdown', 'value'),
+    dash.dependencies.Input('dca-strategy-radio-items', 'value')
     ])
 
-def update_line_graph(crypto, investment_period, investment, start_date, end_date, apr, rewards_freq,):
+def update_line_graph(crypto, investment_period, investment, start_date, end_date, apr, rewards_freq, dca_strategy):
     #USD pairing as this has the most data
     FIAT = "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
     prices = fd.get_crypto_price(crypto, FIAT, start_date, end_date)
-    df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
-    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs = dw.final_stats(df)
-    return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date, investment_period, increment, min_pl_abs, max_pl_abs
+    df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period, dca_strategy)
+    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested = dw.final_stats(df)
+    return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date, investment_period, increment, min_pl_abs, max_pl_abs, total_invested
 
 
 if __name__ == '__main__':

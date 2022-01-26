@@ -9,22 +9,29 @@ pd.set_option('display.width', 1000)
 # Assets citation
 # https://www.flaticon.com/packs/trading-8?word=trading
 # https://www.flaticon.com/packs/business-12?word=trading
+# https://www.flaticon.com/packs/stock-market-5?word=stocks
 
 
-def purchased_crypto(df, apr, rewards_freq, investment=0, investment_period=""):
+def purchased_crypto(df, apr, rewards_freq, investment, investment_period, dca_strategy = "Increment"):
     """Function that takes investment amount, investment period, APR and frequency of rewards distribution"""
 
     #Create a column with the DCA increment at the appropriate date
     
     #Daily
     if investment_period == "Daily":
-        num_days = len(df)
-        increment = investment/num_days
+        if dca_strategy == "Lump_Sum":
+            num_days = len(df)
+            increment = investment/num_days
+        elif dca_strategy == "Increment":
+            increment = investment
         df.insert(1, "Fiat Increment", increment)
     #Weekly
     if investment_period == "Weekly":
-        num_weeks = round(len(df)/7)
-        increment = investment/num_weeks
+        if dca_strategy == "Lump_Sum":
+            num_weeks = round(len(df)/7)
+            increment = investment/num_weeks
+        elif dca_strategy == "Increment":
+            increment = investment
         #Create a column where the value is the increment
         df["Fiat Increment"] = increment
         #Create an index temporarily
@@ -35,8 +42,11 @@ def purchased_crypto(df, apr, rewards_freq, investment=0, investment_period=""):
         df = df.drop(columns="Index")
     #Monthly
     if investment_period == "Monthly":
-        num_months = round(len(df)/30)
-        increment = investment/num_months
+        if dca_strategy == "Lump_Sum":
+            num_months = round(len(df)/30)
+            increment = investment/num_months
+        elif dca_strategy == "Increment":
+            increment = investment
         #Create a column where the value is the increment
         df["Fiat Increment"] = increment
         #Create an index temporarily
@@ -109,8 +119,11 @@ def final_stats(df):
     max_pl = df.PL.max()
     max_pl = f"{max_pl:,.2f}%"
     max_date = "(" + df["PL"].idxmax().strftime('%d %b %Y') + ")"
+
+    total_invested = df["Cumulative Fiat Invested"].iloc[-1]
+    total_invested = f"${total_invested:,.2f}"
     
-    return fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs
+    return fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested
 
 def main():
     #Input the start and end date in the YYYY-MM-DD format
@@ -118,19 +131,19 @@ def main():
     #Input the pairing
     crypto, fiat = "ETH", "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
-    investment, investment_period = 10000, "Monthly"
+    investment, investment_period, dca_strategy = 10000, "Monthly", "Increment"
 
     #Input the staking returns (%), rewards frequency (Monthly)
     apr, rewards_freq = 5, "Monthly"
     
     prices = get_crypto_price(crypto, fiat, start, end)
-    df, increment = purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
+    df, increment = purchased_crypto(prices, apr, rewards_freq, investment, investment_period, dca_strategy)
 
     print(df)
-    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs = final_stats(df)
+    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested = final_stats(df)
 
 
-    print(fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs)
+    print(fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested)
 
     
 if __name__== "__main__":
