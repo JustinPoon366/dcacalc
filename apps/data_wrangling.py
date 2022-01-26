@@ -12,9 +12,8 @@ pd.set_option('display.width', 1000)
 # https://www.flaticon.com/packs/stock-market-5?word=stocks
 
 
-def purchased_crypto(df, apr, rewards_freq, investment, investment_period, dca_strategy = "Increment"):
+def purchased_crypto(df, apr, rewards_freq, investment, investment_period, commission, dca_strategy = "Increment"):
     """Function that takes investment amount, investment period, APR and frequency of rewards distribution"""
-
     #Create a column with the DCA increment at the appropriate date
     
     #Daily
@@ -62,7 +61,7 @@ def purchased_crypto(df, apr, rewards_freq, investment, investment_period, dca_s
         df.loc[df.index[0], "Fiat Increment"] = investment
 
     #Work out the amount of crypto you would recieve each date (does not consider fees yet) by dividing the open price by the fiat increment
-    df["Token Recieved"] = df["Fiat Increment"] / df["Open"]
+    df["Token Recieved"] = df["Fiat Increment"] / df["Open"] * (1 - commission / 100)
     #Work Out Cumulative Fiat Invested
     df["Cumulative Fiat Invested"] = df["Fiat Increment"].cumsum()
     #Calculate the total tokens held at each date
@@ -122,7 +121,6 @@ def final_stats(df, investment_period):
 
     total_invested = df["Cumulative Fiat Invested"].iloc[-1]
     total_invested = f"${total_invested:,.2f}"
-
     
     if investment_period == "Daily":
         total_time = df.last_valid_index() - df.first_valid_index() 
@@ -146,13 +144,14 @@ def main():
     #Input the pairing
     crypto, fiat = "ETH", "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
-    investment, investment_period, dca_strategy = 10000, "Monthly", "Increment"
-
+    investment, investment_period, dca_strategy = 100, "Daily", "Increment"
+    #Input the commission
+    commission = 0.1
     #Input the staking returns (%), rewards frequency (Monthly)
     apr, rewards_freq = 5, "Monthly"
     
     prices = fd.get_crypto_price(crypto, fiat, start, end)
-    df, increment = purchased_crypto(prices, apr, rewards_freq, investment, investment_period, dca_strategy)
+    df, increment = purchased_crypto(prices, apr, rewards_freq, investment, investment_period, commission, dca_strategy)
 
     print(df)
     fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time = final_stats(df, investment_period)

@@ -22,11 +22,13 @@ TIME_PERIOD = [
     "Lump Sum"
 ]
 
-COMMISSION_VALUES = [
-    0.1,
-    0.25,
-    0.5
-]
+COMMISSION_VALUES = {
+    "0%" : 0,
+    "0.1% (Binance)" : 0.1,
+    "0.26% (Kraken)" : 0.26,
+    "0.5% (Coinbase)" : 0.5  
+
+}
 
 colors = {
     "background":"rgb(82, 82, 82)",
@@ -158,6 +160,13 @@ control_card = dbc.Card(children=
                     start_date= dt.datetime.strptime("2016-01-15", "%Y-%m-%d").date(), 
                     end_date= dt.datetime.now().date()
                 )]),
+                dbc.Label("Exchange Fee (%)"),
+                dcc.Dropdown(
+                    id='commission-value',
+                    options= [{'label': k, 'value': v} for k,v in COMMISSION_VALUES.items()],
+                    value=0, 
+                    persistence_type="session"
+                ),
                 dbc.Label("Enter Annual Staking Returns"),
                 dbc.InputGroup(children=
                     [
@@ -173,18 +182,17 @@ control_card = dbc.Card(children=
                         dbc.InputGroupText("%", style={"background-color":"#b58900", "color":"#fff"}),
                     ]),
                 dbc.Label("Enter Rewards Frequency"),
+                dbc.CardImg(src="assets/images/info.png",
+                        style={"height": "15px", "width":"15px", "margin-left": "10px"}, id="tooltip-target-rewards-freq"),
+                dbc.Tooltip(
+                    "Frequency of staking payout",
+                    target="tooltip-target-rewards-freq",
+                ),
                 dcc.Dropdown(
                     id='staking-time-period-dropdown',
                     options= [{'label': "Monthly", 'value': "Monthly"}],
                     value='Monthly', 
                     disabled=True),
-                # dbc.Label("Enter Commission"),
-                # dcc.Dropdown(
-                #     id='commission-value',
-                #     options= [{'label': k, 'value': k} for k in COMMISSION_VALUES],
-                #     value=0.1, 
-                #     persistence_type="session"
-                # ),
             ]),
         ], color="light"
 )
@@ -243,12 +251,8 @@ coffee_card= dbc.Card([
     ],style={"height": "100px", "padding": "1rem 2rem"})
 ], color="light")
 
-
-header = html.H4('Crypto Dollar Cost Average Calculator', className="text-center mt-3 mb-4")
-
 layout = dbc.Card(
         dbc.CardBody([
-            dbc.Row(header),
             dbc.Row([
                 dbc.Col(stat_card("final-return-value", "Total Portfolio Value", "/assets/images/bill.png"), width={"size": 3}),
                 dbc.Col(stat_card('min-return-percentage', "Maximum Loss (%)", "/assets/images/loss.png", "min-return-date"), width={"size": 3}),
@@ -289,14 +293,15 @@ layout = dbc.Card(
     dash.dependencies.Input('my-date-picker-range', 'end_date'),
     dash.dependencies.Input('staking-returns', 'value'),
     dash.dependencies.Input('staking-time-period-dropdown', 'value'),
+    dash.dependencies.Input('commission-value', 'value'),
     ])
 
-def update_line_graph(crypto, investment_period, investment, start_date, end_date, apr, rewards_freq):
+def update_line_graph(crypto, investment_period, investment, start_date, end_date, apr, rewards_freq, commission):
     #USD pairing as this has the most data.
     FIAT = "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
     prices = fd.get_crypto_price(crypto, FIAT, start_date, end_date)
-    df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
+    df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period, commission)
     fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time = dw.final_stats(df, investment_period)
     return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time
 
