@@ -112,6 +112,12 @@ control_card = dbc.Card(children=
         dbc.CardBody(
             [
                 dbc.Label("Select Crypto"),
+                dbc.CardImg(src="assets/images/info.png",
+                        style={"height": "15px", "width":"15px", "margin-left": "10px"}, id="tooltip-target-crypto-selector"),
+                dbc.Tooltip(
+                    "Top 20 cryptocurrencies (excluding stablecoins)",
+                    target="tooltip-target-crypto-selector",
+                ),
                 dcc.Dropdown(
                 id='crypto-dropdown',
                 options= [{'label': k, 'value': k} for k in CRYPTO_LIST + STOCK_LIST],
