@@ -118,16 +118,6 @@ control_card = dbc.Card(children=
                 value='BTC', 
                 persistence_type="session"
                 ),
-                dbc.Label("DCA Strategy"),
-                dbc.RadioItems(
-                    options=[
-                        {"label": "Investment Increment Known", "value": "Increment"},
-                        {"label": "Total Amount to Invest Known", "value": "Lump_Sum"},
-                    ],
-                    value="Increment",
-                    id="dca-strategy-radio-items",
-                    inline=True,
-                ),
                 dbc.Label("Enter Investment Frequency"),
                 dcc.Dropdown(
                     id='time-period-dropdown',
@@ -252,10 +242,10 @@ app.layout = html.Div(id="output-clientside", children=[
             ]),
             html.Br(),
             dbc.Row([
-                dbc.Col(stat_card("increment", "Investment Increment", "/assets/images/deposit.png", id_freq="investment-period"), width={"size": 3}),
+                dbc.Col(stat_card('amount_invested', "Total Fiat Invested ($)", "/assets/images/money-bag.png"), width={"size": 3}),
                 dbc.Col(stat_card('min-return-absolute', "Maximum Loss ($)", "/assets/images/euro-down.png"), width={"size": 3}),
                 dbc.Col(stat_card('max-return-absolute', "Maximum Gain ($)", "/assets/images/pound-up.png"), width={"size": 3}),
-                dbc.Col(stat_card('amount_invested', "Total Fiat Invested ($)", "/assets/images/money-bag.png"), width={"size": 3}),
+                dbc.Col(stat_card('time-in-market', "Time In Market", "/assets/images/hourglass.png"), width={"size": 3}),
             ]),
             html.Br(),
             dbc.Row(children=[
@@ -276,11 +266,10 @@ app.layout = html.Div(id="output-clientside", children=[
     dash.dependencies.Output('min-return-date', 'children'),
     dash.dependencies.Output('max-return-percentage', 'children'),
     dash.dependencies.Output('max-return-date', 'children'),
-    dash.dependencies.Output('investment-period', 'children'),
-    dash.dependencies.Output('increment', 'children'),
     dash.dependencies.Output('min-return-absolute', 'children'),
     dash.dependencies.Output('max-return-absolute', 'children'),
     dash.dependencies.Output('amount_invested', 'children'),
+    dash.dependencies.Output('time-in-market', 'children'),
     [dash.dependencies.Input('crypto-dropdown', 'value'),
     dash.dependencies.Input('time-period-dropdown', 'value'),
     dash.dependencies.Input('investment-amount', 'value'),
@@ -288,17 +277,16 @@ app.layout = html.Div(id="output-clientside", children=[
     dash.dependencies.Input('my-date-picker-range', 'end_date'),
     dash.dependencies.Input('staking-returns', 'value'),
     dash.dependencies.Input('staking-time-period-dropdown', 'value'),
-    dash.dependencies.Input('dca-strategy-radio-items', 'value')
     ])
 
-def update_line_graph(crypto, investment_period, investment, start_date, end_date, apr, rewards_freq, dca_strategy):
+def update_line_graph(crypto, investment_period, investment, start_date, end_date, apr, rewards_freq):
     #USD pairing as this has the most data
     FIAT = "USD"
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
     prices = fd.get_crypto_price(crypto, FIAT, start_date, end_date)
-    df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period, dca_strategy)
-    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested = dw.final_stats(df)
-    return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date, investment_period, increment, min_pl_abs, max_pl_abs, total_invested
+    df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period)
+    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time = dw.final_stats(df, investment_period)
+    return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time
 
 
 if __name__ == '__main__':

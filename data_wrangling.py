@@ -99,7 +99,7 @@ def purchased_crypto(df, apr, rewards_freq, investment, investment_period, dca_s
 
     return df, increment
 
-def final_stats(df):
+def final_stats(df, investment_period):
     final_date = df.index[-1]
     fv = df["Cumulative Fiat Value (Staked)"][final_date] #final portfolio value (staked)
     fv = f"${fv:,.2f}"
@@ -122,8 +122,23 @@ def final_stats(df):
 
     total_invested = df["Cumulative Fiat Invested"].iloc[-1]
     total_invested = f"${total_invested:,.2f}"
+
     
-    return fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested
+    if investment_period == "Daily":
+        total_time = df.last_valid_index() - df.first_valid_index() 
+        total_time = total_time.days
+        total_time = f"{total_time} Days"
+    
+    elif investment_period == "Weekly":
+        total_time = df.last_valid_index() - df.first_valid_index()     
+        total_time = total_time.days // 7
+        total_time = f"{total_time} Weeks"
+
+    elif investment_period == "Monthly" or investment_period == "Lump Sum":
+        total_time = (df.last_valid_index().year - df.first_valid_index().year) * 12 + (df.last_valid_index().month - df.first_valid_index().month)
+        total_time = f"{total_time} Months"
+    
+    return fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time
 
 def main():
     #Input the start and end date in the YYYY-MM-DD format
@@ -140,10 +155,10 @@ def main():
     df, increment = purchased_crypto(prices, apr, rewards_freq, investment, investment_period, dca_strategy)
 
     print(df)
-    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested = final_stats(df)
+    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time = final_stats(df, investment_period)
 
 
-    print(fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested)
+    print(fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time)
 
     
 if __name__== "__main__":
