@@ -110,9 +110,11 @@ def final_stats(df, investment_period):
     df_profit_loss_absolute = df["Cumulative Fiat Value (Staked)"] - df["Cumulative Fiat Invested"]
     min_pl_abs = df_profit_loss_absolute.min()
     min_pl_abs = f"${min_pl_abs:,.2f}"
+    min_date_abs = "(" + df_profit_loss_absolute.idxmin().strftime('%d %b %Y') + ")"
 
     max_pl_abs = df_profit_loss_absolute.max()
     max_pl_abs = f"${max_pl_abs:,.2f}"
+    max_date_abs = "(" + df_profit_loss_absolute.idxmax().strftime('%d %b %Y') + ")"
 
     min_date = "(" + df["PL"].idxmin().strftime('%d %b %Y') + ")"
     max_pl = df.PL.max()
@@ -136,7 +138,7 @@ def final_stats(df, investment_period):
         total_time = (df.last_valid_index().year - df.first_valid_index().year) * 12 + (df.last_valid_index().month - df.first_valid_index().month)
         total_time = f"{total_time} Months"
     
-    return fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time
+    return fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs
 
 def main():
     #Input the start and end date in the YYYY-MM-DD format

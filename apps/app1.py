@@ -262,8 +262,8 @@ layout = dbc.Card(
             html.Br(),
             dbc.Row([
                 dbc.Col(stat_card('amount_invested', "Total Fiat Invested ($)", "/assets/images/money-bag.png"), width={"size": 3}),
-                dbc.Col(stat_card('min-return-absolute', "Maximum Loss ($)", "/assets/images/euro-down.png"), width={"size": 3}),
-                dbc.Col(stat_card('max-return-absolute', "Maximum Gain ($)", "/assets/images/pound-up.png"), width={"size": 3}),
+                dbc.Col(stat_card('min-return-absolute', "Maximum Loss ($)", "/assets/images/euro-down.png", 'min-date-absolute'), width={"size": 3}),
+                dbc.Col(stat_card('max-return-absolute', "Maximum Gain ($)", "/assets/images/pound-up.png", "max-date-absolute"), width={"size": 3}),
                 dbc.Col(stat_card('time-in-market', "Time In Market", "/assets/images/hourglass.png"), width={"size": 3}),
             ]),
             html.Br(),
@@ -286,6 +286,8 @@ layout = dbc.Card(
     dash.dependencies.Output('max-return-absolute', 'children'),
     dash.dependencies.Output('amount_invested', 'children'),
     dash.dependencies.Output('time-in-market', 'children'),
+    dash.dependencies.Output('min-date-absolute', 'children'),    
+    dash.dependencies.Output('max-date-absolute', 'children'),  
     [dash.dependencies.Input('crypto-dropdown', 'value'),
     dash.dependencies.Input('time-period-dropdown', 'value'),
     dash.dependencies.Input('investment-amount', 'value'),
@@ -302,8 +304,8 @@ def update_line_graph(crypto, investment_period, investment, start_date, end_dat
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
     prices = fd.get_crypto_price(crypto, FIAT, start_date, end_date)
     df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period, commission)
-    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time = dw.final_stats(df, investment_period)
-    return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time
+    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs = dw.final_stats(df, investment_period)
+    return generate_line_graph(df), fv, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs
 
 
 if __name__ == '__main__':

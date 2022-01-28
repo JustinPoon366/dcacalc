@@ -40,17 +40,7 @@ navbar = dbc.Navbar(
     color="light",
     dark=False,
 )
-# navbar = dbc.Navbar(
-#     children=[
-#         dbc.CardImg(src="assets/images/bill.png", style = {"height" : "30 px","width":"50px"}),
-#         dbc.NavItem(dbc.NavLink(dcc.Link('DCA Calculator', href='/', style={"color":"black", "text-decoration": "none"}))),
-#         dbc.NavItem(dbc.NavLink(dcc.Link('Why DCA?', href='/contact', style={"color":"black", "text-decoration": "none"}))),
-#     ],
-#     brand="Crypto Dollar Cost Average Calculator",
-#     brand_href="#",
-#     color="light",
-#     dark=False,
-# )
+
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
