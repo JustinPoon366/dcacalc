@@ -56,7 +56,7 @@ def generate_line_graph(df):
         x=adj_df["Date"], 
         y=adj_df["Cumulative Fiat Value (Staked)"], 
         showlegend=False,
-        hoverinfo='skip', #skip the default hover text
+        hoverinfo='skip', #skip the default hover text.
         hovertemplate=
         "Portfolio Value ($): %{y:,.2f}<br>" + 
         "<extra></extra>" #removes the trace name/index
