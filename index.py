@@ -21,22 +21,18 @@ navbar = dbc.Navbar(
                 align="center",
                 className="g-0",
             ),
-            dbc.Row([
-                dbc.Col(),
-                dbc.Col(
+            html.Div([
                     dbc.NavItem(
                         dbc.NavLink(
                             dcc.Link('DCA Calculator', href='/', style={"color":"black", "text-decoration": "none"})
-                            )
-                        )
-                    ),
-                dbc.Col(dbc.NavItem(
-                    dbc.NavLink(
-                        dcc.Link('Why DCA?', href='/contact', style={"color":"black", "text-decoration": "none"})
-                        )
-                    )
-                ),
-            ], className="w-50"
+                        ),
+                    style={"display": "inline-block"}),
+                    dbc.NavItem(
+                        dbc.NavLink(
+                            dcc.Link('Why DCA?', href='/contact', style={"color":"black", "text-decoration": "none"})
+                        ),
+                    style={"display": "inline-block"})
+            ], style={"white-space": "nowrap"}
             )
         
         ]
