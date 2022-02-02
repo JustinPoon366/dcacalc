@@ -98,12 +98,26 @@ def purchased_crypto(df, apr, rewards_freq, investment, investment_period, commi
 
     return df, increment
 
-def final_stats(df, investment_period):
+def find_return_value(df):
     final_date = df.index[-1]
-    fv = df["Cumulative Fiat Value (Staked)"][final_date] #final portfolio value (staked)
-    fv = f"${fv:,.2f}"
-    final_date = final_date.strftime('%d-%m-%Y')
+    final_value = df["Cumulative Fiat Value (Staked)"][final_date] #final portfolio value (staked)
+    final_value = f"${final_value:,.2f}"
+    return final_value
 
+def find_final_date(df):
+    final_date = df.index[-1]
+    final_date = final_date.strftime('%d-%m-%Y')
+    return final_date
+
+def find_maximum_percent_loss(df):
+    min_pl = df.PL.min()
+    min_pl = f"{min_pl:,.2f}%"
+    return min_pl
+
+
+def final_stats(df, investment_period):
+    final_date = find_final_date(df)
+    final_value = find_return_value(df)
     min_pl = df.PL.min()
     min_pl = f"{min_pl:,.2f}%"
 
@@ -138,7 +152,7 @@ def final_stats(df, investment_period):
         total_time = (df.last_valid_index().year - df.first_valid_index().year) * 12 + (df.last_valid_index().month - df.first_valid_index().month)
         total_time = f"{total_time} Months"
     
-    return fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs
+    return final_value, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs
 
 def main():
     #Input the start and end date in the YYYY-MM-DD format
