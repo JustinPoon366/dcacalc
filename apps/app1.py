@@ -304,8 +304,12 @@ def update_line_graph(crypto, investment_period, investment, start_date, end_dat
     #Input the investment amount ($), investment period (Daily, Weekly, Monthly)
     prices = fd.get_crypto_price(crypto, FIAT, start_date, end_date)
     df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period, commission)
+    
+    pl = dw.CalculateAbsoluteProfitLoss(df) #Class that calculates stats related to absolute loss/profit
     fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs = dw.final_stats(df, investment_period)
-    return generate_line_graph(df), dw.find_return_value(df), dw.find_maximum_percent_loss(df), min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs
+    return (generate_line_graph(df), dw.find_final_value(df), dw.find_maximum_percent_loss(df),
+            min_date, max_pl, max_date, pl.maximum_absolute_loss(), pl.maximum_absolute_profit(),
+            total_invested, total_time, pl.maximum_absolute_loss_date(), pl.maximum_absolute_profit_date())
 
 
 if __name__ == '__main__':

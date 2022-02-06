@@ -98,7 +98,7 @@ def purchased_crypto(df, apr, rewards_freq, investment, investment_period, commi
 
     return df, increment
 
-def find_return_value(df):
+def find_final_value(df):
     final_date = df.index[-1]
     final_value = df["Cumulative Fiat Value (Staked)"][final_date] #final portfolio value (staked)
     final_value = f"${final_value:,.2f}"
@@ -114,21 +114,41 @@ def find_maximum_percent_loss(df):
     min_pl = f"{min_pl:,.2f}%"
     return min_pl
 
+class CalculateAbsoluteProfitLoss:
+    def __init__(self, df):
+        self.df = df
+        self.df = df["Cumulative Fiat Value (Staked)"] - df["Cumulative Fiat Invested"]
+    
+    def maximum_absolute_loss(self):
+        min_pl_abs = self.df.min()
+        min_pl_abs = f"${min_pl_abs:,.2f}"
+        return min_pl_abs
+
+    def maximum_absolute_loss_date(self):
+        min_date_abs = "(" + self.df.idxmin().strftime('%d %b %Y') + ")"
+        return min_date_abs
+
+    def maximum_absolute_profit(self):
+        max_pl_abs = self.df.max()
+        max_pl_abs = f"${max_pl_abs:,.2f}"
+        return max_pl_abs
+
+    def maximum_absolute_profit_date(self):
+        max_date_abs = "(" + self.df.idxmax().strftime('%d %b %Y') + ")"
+        return max_date_abs
+
 
 def final_stats(df, investment_period):
     final_date = find_final_date(df)
-    final_value = find_return_value(df)
-    min_pl = df.PL.min()
-    min_pl = f"{min_pl:,.2f}%"
+    final_value = find_final_value(df)
+    min_pl = find_maximum_percent_loss(df)
 
-    df_profit_loss_absolute = df["Cumulative Fiat Value (Staked)"] - df["Cumulative Fiat Invested"]
-    min_pl_abs = df_profit_loss_absolute.min()
-    min_pl_abs = f"${min_pl_abs:,.2f}"
-    min_date_abs = "(" + df_profit_loss_absolute.idxmin().strftime('%d %b %Y') + ")"
+    pl = CalculateAbsoluteProfitLoss(df)
+    min_pl_abs = pl.maximum_absolute_loss()
+    min_date_abs = pl.maximum_absolute_loss_date()
 
-    max_pl_abs = df_profit_loss_absolute.max()
-    max_pl_abs = f"${max_pl_abs:,.2f}"
-    max_date_abs = "(" + df_profit_loss_absolute.idxmax().strftime('%d %b %Y') + ")"
+    max_pl_abs = pl.maximum_absolute_profit()
+    max_date_abs = pl.maximum_absolute_profit_date()
 
     min_date = "(" + df["PL"].idxmin().strftime('%d %b %Y') + ")"
     max_pl = df.PL.max()
