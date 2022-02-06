@@ -206,15 +206,18 @@ graph_card = dbc.Card([
                 id='display-selected-values',
                 responsive=True,
                 figure=blank_fig(),
-                
             ),
     ],
-    style={"height": "450px"}
+    style={"height": "450px"}, 
+    ),
+    dbc.CardBody(
+        html.Div("Results from this calculator should not be taken as any kind of investment advice. This calculator relies on historical price data and cannot predict or take into account the actual future movements in financial markets. Every individual situation is different and you should consult a qualified financial planner and/or tax accountant for financial advice.",
+         style={"font-size":"10px", "color":"grey"})
     )
 ])
 
 
-def stat_card(id_value, description, image, id_date="", id_freq=""):
+def stat_card(id_value, description, image, id_date="", id_freq="", primary_color="black", secondary_color="grey"):
     stat_cards= dbc.Card([
         dbc.CardBody([
             dbc.Row([
@@ -225,9 +228,9 @@ def stat_card(id_value, description, image, id_date="", id_freq=""):
                 style={"height": "100%", "padding": "0.5rem 0rem 0rem 1rem"}, width={"size": 3}),
                 dbc.Col([
                     dbc.Label(description, style={"font-size":"18px"}),
-                    html.Div(id=id_value),
-                    html.Div(id=id_date, style={"font-size": "12px", "color":"grey"}),
-                    html.Div(id=id_freq, style={"font-size": "12px", "color":"grey"})
+                    html.Div(id=id_value, style={"color":primary_color}),
+                    html.Div(id=id_date, style={"font-size": "12px", "color":secondary_color}),
+                    html.Div(id=id_freq, style={"font-size": "12px", "color":secondary_color})
                 ], width={"size": 9})
             ], style={"height":"100%"})    
         ],style={"height": "100px", "padding": "1rem 2rem"})
@@ -251,10 +254,45 @@ coffee_card= dbc.Card([
     ],style={"height": "100px", "padding": "1rem 2rem"})
 ], color="light")
 
-layout = dbc.Card(
+
+faq_section = html.Div([
+    dbc.CardBody([
+        dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader([
+                            html.H4(["Frequently Asked Questions"])], style={'text-align':'center'}
+                        ),
+                        dbc.CardBody([
+                                html.H5(["""How is this calculated?"""]),
+                                html.Br(),
+                                html.Div([
+                                    html.Div("Check out the repo at here: ", style={"display":"inline-block", "white-space":"pre"}),
+                                    dbc.CardLink("https://github.com/JustinPoon366/dcacalc", href="https://github.com/JustinPoon366/dcacalc", style={"display":"inline-block"}),
+                                    ], style={"white-space":"no-wrap"}),
+                                html.Br(),
+                                html.H5(["Do you collect data about the numbers I enter?"]),
+                                html.Br(),
+                                html.Div("Certainly not – your privacy is respected! All calculations are performed within your own browser."), 
+                                html.Br(),
+                                html.H5(["How can I get in touch with you to suggest an improvement?"]),
+                                html.Br(),
+                                html.Div([
+                                    html.Div("Please send me an email: ", style={"display":"inline-block", "white-space":"pre"}),
+                                    dbc.CardLink("09_dongle_railing@icloud.com", href="mailto:09_dongle_railing@icloud.com", style={"display":"inline-block"}),
+                                    ], style={"white-space":"no-wrap"}),
+                        ])
+                    ], color="light"),
+                ], width="6")
+            ], justify="center")
+    ])
+])
+
+
+layout = html.Div(
         dbc.CardBody([
             dbc.Row([
-                dbc.Col(stat_card("final-return-value", "Total Portfolio Value", "/assets/images/bill.png"), width={"size": 3}),
+                dbc.Col(stat_card("final-return-value", "Total Portfolio Value", "/assets/images/bill.png", "final-value-percentage", secondary_color="green"), width={"size": 3}),
                 dbc.Col(stat_card('min-return-percentage', "Maximum Loss (%)", "/assets/images/loss.png", "min-return-date"), width={"size": 3}),
                 dbc.Col(stat_card('max-return-percentage', "Maximum Gain (%)", "/assets/images/rocket.png", "max-return-date"), width={"size": 3}),
                 dbc.Col(coffee_card, width={"size": 3})
@@ -272,7 +310,7 @@ layout = dbc.Card(
                 dbc.Col(graph_card,width={"size": 9})
             ])
         ]), 
-    )
+    ), html.Br(), faq_section
 
 
 @app.callback(
@@ -288,6 +326,7 @@ layout = dbc.Card(
     dash.dependencies.Output('time-in-market', 'children'),
     dash.dependencies.Output('min-date-absolute', 'children'),    
     dash.dependencies.Output('max-date-absolute', 'children'),  
+    dash.dependencies.Output('final-value-percentage', 'children'),  
     [dash.dependencies.Input('crypto-dropdown', 'value'),
     dash.dependencies.Input('time-period-dropdown', 'value'),
     dash.dependencies.Input('investment-amount', 'value'),
@@ -306,10 +345,21 @@ def update_line_graph(crypto, investment_period, investment, start_date, end_dat
     df, increment = dw.purchased_crypto(prices, apr, rewards_freq, investment, investment_period, commission)
     
     pl = dw.CalculateAbsoluteProfitLoss(df) #Class that calculates stats related to absolute loss/profit
-    fv, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs = dw.final_stats(df, investment_period)
-    return (generate_line_graph(df), dw.find_final_value(df), dw.find_maximum_percent_loss(df),
-            min_date, max_pl, max_date, pl.maximum_absolute_loss(), pl.maximum_absolute_profit(),
-            total_invested, total_time, pl.maximum_absolute_loss_date(), pl.maximum_absolute_profit_date())
+    fv = dw.CalculateFinalValues(df)
+    min_date, max_pl, max_date, total_invested, total_time = dw.final_stats(df, investment_period)
+    return (generate_line_graph(df),
+            fv.find_final_value(),
+            dw.find_maximum_percent_loss(df),
+            min_date,
+            max_pl,
+            max_date,
+            pl.maximum_absolute_loss(),
+            pl.maximum_absolute_profit(),
+            total_invested,
+            total_time,
+            pl.maximum_absolute_loss_date(),
+            pl.maximum_absolute_profit_date(),
+            fv.find_final_percentage())
 
 
 if __name__ == '__main__':

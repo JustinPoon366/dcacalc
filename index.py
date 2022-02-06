@@ -29,12 +29,11 @@ navbar = dbc.Navbar(
                     style={"display": "inline-block"}),
                     dbc.NavItem(
                         dbc.NavLink(
-                            dcc.Link('Why DCA?', href='/contact', style={"color":"black", "text-decoration": "none"})
+                            dcc.Link('Why DCA?', href='/why-dca', style={"color":"black", "text-decoration": "none"})
                         ),
-                    style={"display": "inline-block"})
+                    style={"display": "inline-block"}),
             ], style={"white-space": "nowrap"}
             )
-        
         ]
     ),
     color="light",
@@ -56,7 +55,7 @@ app.layout = html.Div([
 def display_page(pathname):
     if pathname == '/':
         return app1.layout
-    elif pathname == '/contact':
+    elif pathname == '/why-dca':
         return app2.layout
     else:
         return '404'

@@ -12,7 +12,7 @@ My name is Justin, and i'm on a quest to educate the public on the potential rew
 
 If you found my website useful, please share it!
 
-If you would like me to make a custom dashboard for you, please reach out to me at: <junstag366@gmail.com>
+If you would like me to make a custom dashboard for you, please reach out to me at: <09_dongle_railing@icloud.com>
 
 ## About The Calc
 

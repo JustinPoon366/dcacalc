@@ -20,7 +20,7 @@ layout = html.Div([
                         html.Div(["This strategy is mostly used by investors that are looking to invest in crypto for the long-term, since it reduces short-term volatility"]),
                         html.Br(),
                         html.Div([
-                            html.Div("Credit: Much of the information on this page has been adapted from ", style={"display":"inline-block", "white-space":"pre"}),
+                            html.Div("Credit: ", style={"display":"inline-block", "white-space":"pre"}),
                             dbc.CardLink("https://dcabtc.com/", href="https://dcabtc.com/", style={"display":"inline-block"}),
                         ], style={"white-space":"no-wrap"}),
                 ])
@@ -66,15 +66,13 @@ layout = html.Div([
                         html.Div("This is a major downside of the DCA approach."),
                         html.Br(),
                         html.Div("However, on the other hand, how do you know for sure if Bitcoin is in a bull cycle? What if price just showed some strength, and retraces the entire rally by the end of the month? Also, how can you be sure that you're not investing into the top of a bull cycle?"),
+                        html.Br(),
+                        html.Div([
+                            html.Div("Credit: ", style={"display":"inline-block", "white-space":"pre"}),
+                            dbc.CardLink("https://dcabtc.com/", href="https://dcabtc.com/", style={"display":"inline-block"}),
+                        ], style={"white-space":"no-wrap"}),
                 ])
             ], color="light")
         ], width="8")
     ], justify="center")
 ])
-
-
-@app.callback(
-    Output('app-1-display-value', 'children'),
-    Input('app-1-dropdown', 'value'))
-def display_value(value):
-    return 'You have selected "{}"'.format(value)

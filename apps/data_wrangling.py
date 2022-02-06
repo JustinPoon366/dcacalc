@@ -98,11 +98,23 @@ def purchased_crypto(df, apr, rewards_freq, investment, investment_period, commi
 
     return df, increment
 
-def find_final_value(df):
-    final_date = df.index[-1]
-    final_value = df["Cumulative Fiat Value (Staked)"][final_date] #final portfolio value (staked)
-    final_value = f"${final_value:,.2f}"
-    return final_value
+class CalculateFinalValues:
+    def __init__(self, df):
+        self.df = df
+        self.final_date = df.index[-1]
+        self.final_value = df["Cumulative Fiat Value (Staked)"][self.final_date] #final portfolio value (staked)
+        self.total_invested = df["Cumulative Fiat Invested"].iloc[-1]
+        selftotal_invested = int(self.total_invested)
+
+    def find_final_value(self):
+        final_value = f"${self.final_value:,.2f}"
+        return final_value
+    
+    def find_final_percentage(self):
+        final_percentage = self.final_value / self.total_invested * 100
+        final_percentage = f"{final_percentage:,.2f}%"
+        return final_percentage
+
 
 def find_final_date(df):
     final_date = df.index[-1]
@@ -140,7 +152,6 @@ class CalculateAbsoluteProfitLoss:
 
 def final_stats(df, investment_period):
     final_date = find_final_date(df)
-    final_value = find_final_value(df)
     min_pl = find_maximum_percent_loss(df)
 
     pl = CalculateAbsoluteProfitLoss(df)
@@ -156,6 +167,7 @@ def final_stats(df, investment_period):
     max_date = "(" + df["PL"].idxmax().strftime('%d %b %Y') + ")"
 
     total_invested = df["Cumulative Fiat Invested"].iloc[-1]
+    total_invested = int(total_invested)
     total_invested = f"${total_invested:,.2f}"
     
     if investment_period == "Daily":
@@ -171,8 +183,9 @@ def final_stats(df, investment_period):
     elif investment_period == "Monthly" or investment_period == "Lump Sum":
         total_time = (df.last_valid_index().year - df.first_valid_index().year) * 12 + (df.last_valid_index().month - df.first_valid_index().month)
         total_time = f"{total_time} Months"
+
     
-    return final_value, final_date, min_pl, min_date, max_pl, max_date, min_pl_abs, max_pl_abs, total_invested, total_time, min_date_abs, max_date_abs
+    return  min_date, max_pl, max_date, total_invested, total_time
 
 def main():
     #Input the start and end date in the YYYY-MM-DD format
